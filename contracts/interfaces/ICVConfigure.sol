@@ -34,4 +34,24 @@ interface ICVCfg {
     function getPowerX() external view returns (uint256);
 
     function getPowerY() external view returns (uint256);
+
+    function getSameBurnCfg()
+        external
+        view
+        returns (
+            bool,
+            uint256,
+            uint256,
+            uint256
+        );
+
+    function getDiffBurnCfg()
+        external
+        view
+        returns (
+            bool,
+            uint256,
+            uint256,
+            uint256
+        );
 }

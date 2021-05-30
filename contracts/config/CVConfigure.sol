@@ -68,6 +68,17 @@ contract CVCfg is ICVCfg, Ownable {
     }
     mapping(uint256 => PieceNumber) public pieceNumber;
 
+    //burm power
+    struct BurnPower {
+        bool isBusd;
+        uint256 burnFactor;
+        uint256 busdPowerPrice;
+        uint256 cvcPowerPrice;
+    }
+
+    BurnPower public sameBurnCfg;
+    BurnPower public diffBurnCfg;
+
     constructor() public {
         BlindBox memory _blind =
             BlindBox({
@@ -99,6 +110,20 @@ contract CVCfg is ICVCfg, Ownable {
 
         powerX = 350;
         powerY = 1;
+
+        sameBurnCfg = BurnPower({
+            isBusd: true,
+            burnFactor: 120,
+            busdPowerPrice: 17,
+            cvcPowerPrice: 83
+        });
+
+        diffBurnCfg = BurnPower({
+            isBusd: true,
+            burnFactor: 110,
+            busdPowerPrice: 2517,
+            cvcPowerPrice: 125
+        });
     }
 
     function setBlind(
@@ -431,5 +456,67 @@ contract CVCfg is ICVCfg, Ownable {
 
     function getPowerY() external view override returns (uint256) {
         return powerY;
+    }
+
+    function setSameBurnCfg(
+        bool _isBusd,
+        uint256 _factor,
+        uint256 _busd,
+        uint256 _cvc
+    ) external onlyOwner {
+        sameBurnCfg.isBusd = _isBusd;
+        sameBurnCfg.burnFactor = _factor;
+        sameBurnCfg.busdPowerPrice = _busd;
+        sameBurmCfg.cvcPowerPrice = _cvc;
+    }
+
+    function setDiffBurnCfg(
+        bool _isBusd,
+        uint256 _factor,
+        uint256 _busd,
+        uint256 _cvc
+    ) external onlyOwner {
+        diffBurnCfg.isBusd = _isBusd;
+        diffBurnCfg.burnFactor = _factor;
+        diffBurnCfg.busdPowerPrice = _busd;
+        diffBurnCfg.cvcPowerPrice = _cvc;
+    }
+
+    function getSameBurnCfg()
+        external
+        view
+        override
+        returns (
+            bool,
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        return (
+            sameBurnCfg.isBusd,
+            sameBurnCfg.burnFactor,
+            sameBurnCfg.busdPowerPrice,
+            sameBurmCfg.cvcPowerPrice
+        );
+    }
+
+    function getDiffBurnCfg()
+        external
+        view
+        override
+        returns (
+            bool,
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        return (
+            diffBurnCfg.isBusd,
+            diffBurnCfg.burnFactor,
+            diffBurnCfg.busdPowerPrice,
+            diffBurnCfg.cvcPowerPrice
+        );
     }
 }

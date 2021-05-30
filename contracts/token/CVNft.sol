@@ -101,4 +101,11 @@ contract CVNft is CVNftBase, ERC721("CV NFT", "CV") {
 
         return (tokenID, geneID);
     }
+
+    /**
+     * @dev Allow contract owner to update Puzzle
+     */
+    function _updatePuzzle(uint256 _tokenID, Puzzle memory _puzzle) internal {
+        puzzles[_tokenID] = _puzzle;
+    }
 }
