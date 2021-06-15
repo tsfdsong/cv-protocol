@@ -467,7 +467,7 @@ contract CVCfg is ICVCfg, Ownable {
         sameBurnCfg.isBusd = _isBusd;
         sameBurnCfg.burnFactor = _factor;
         sameBurnCfg.busdPowerPrice = _busd;
-        sameBurmCfg.cvcPowerPrice = _cvc;
+        sameBurnCfg.cvcPowerPrice = _cvc;
     }
 
     function setDiffBurnCfg(
@@ -497,7 +497,7 @@ contract CVCfg is ICVCfg, Ownable {
             sameBurnCfg.isBusd,
             sameBurnCfg.burnFactor,
             sameBurnCfg.busdPowerPrice,
-            sameBurmCfg.cvcPowerPrice
+            sameBurnCfg.cvcPowerPrice
         );
     }
 

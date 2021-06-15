@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./CVNft.sol";
+import "./CVNftV2.sol";
 import "../interfaces/ICVNft.sol";
 import "../interfaces/ICVConfigure.sol";
 
-contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
+contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
     /**
      * @dev Initializes Puzzle core contract.
      * @param _busd BUSD ERC20 contract address
@@ -405,6 +406,7 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
             "CVNftManager: Permission is not allow"
         );
         _burn(_tokenID);
+        delete puzzles[_tokenID];
     }
 
     function setCVNftCfg(ICVCfg _cvCfg) external override onlyOwner {
@@ -591,7 +593,7 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
         uint256 _upgradePower,
         bool _isSame
     )
-        external
+        public
         view
         returns (
             bool,
@@ -615,9 +617,9 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
         uint256 powerPlus = _upgradePower.add(_burnPower).add(burnPlus);
         uint256 price = 0;
         if (isBusd) {
-            price = burnPlus.mul(busdPrice).mul(10**busd.decimals());
+            price = burnPlus.mul(busdPrice).mul(10**uint256(busd.decimals()));
         } else {
-            price = burnPlus.mul(cvcPrice).mul(10**cvcToken.decimals());
+            price = burnPlus.mul(cvcPrice).mul(10**uint256(cvcToken.decimals()));
         }
 
         return (isBusd, burnPlus, powerPlus, price);
@@ -635,10 +637,9 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
         address msgSender = msg.sender;
         Puzzle memory _burnPuzzle = puzzles[_burnID];
         Puzzle memory _upgradePuzzle = puzzles[_upgradeID];
-        uint256 burnPower = _burnPuzzle.power;
-        uint256 upgradePower = _upgradePuzzle.power;
-        (bool isBusd, uint256 burnPlus, uint256 upgradePower, uint256 price) =
-            previewBurn(burnPower, upgradePower, _isSame);
+        uint256 oldPower = _burnPuzzle.power;
+        (bool isBusd, , uint256 upgradePower, uint256 price) =
+            previewBurn(oldPower, _upgradePuzzle.power, _isSame);
         if (isBusd) {
             require(
                 busd.allowance(msgSender, address(this)) >= price,
@@ -649,11 +650,6 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
                 busd.transferFrom(msgSender, incomeAddress, price),
                 "CVNftManager: burn BUSD token not sent to income"
             );
-
-            _burn(_burnID);
-
-            _upgradePuzzle.power = upgradePower;
-            _updatePuzzle(_upgradeID, _upgradePuzzle);
         } else {
             require(
                 cvcToken.allowance(msgSender, address(this)) >= price,
@@ -664,14 +660,34 @@ contract CVNftManager is CVNft, ICVNft, ReentrancyGuard, Pausable {
                 cvcToken.transferFrom(msgSender, incomeAddress, price),
                 "CVNftManager: burn CVC token not sent to income"
             );
-
-            _burn(_burnID);
-
-            _upgradePuzzle.power = upgradePower;
-            _updatePuzzle(_upgradeID, _upgradePuzzle);
         }
 
-        emit BurnUpgrade(_burnID, _upgradeID, burnPower, upgradePower);
+        _burn(_burnID);
+        delete puzzles[_burnID];
+
+        _upgradePuzzle.power = upgradePower;
+        _updatePuzzle(_upgradeID, _upgradePuzzle);
+
+        emit BurnUpgrade(_burnID, _upgradeID, oldPower, upgradePower);
         return _upgradeID;
+    }
+
+    function updatePuzzle(uint256 tokenID,Puzzle memory puzzle) public {
+        require(
+            _isApprovedOrOwner(msg.sender,tokenID),
+            "CVNftManager: update puzzle must be approved or owner"
+        );
+
+        _updatePuzzle(tokenID, puzzle);
+    }
+
+    function burnPuzzle(uint256 tokenID) public {
+        require(
+            _isApprovedOrOwner(msg.sender,tokenID),
+            "CVNftManager: burn puzzle must be approved or owner"
+        );
+
+        _burn(tokenID);
+        delete puzzles[tokenID];
     }
 }

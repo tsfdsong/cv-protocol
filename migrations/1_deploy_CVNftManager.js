@@ -1,7 +1,7 @@
 const FakeBUSDT = artifacts.require("./token/BUSDToken");
 const FakeCVD = artifacts.require("./token/CVDToken");
 const FakeCONFIG = artifacts.require("./config/CVCfg");
-const FakeCVMANAGER = artifacts.require("./token/CVNftManager");
+const FakeCVMANAGER = artifacts.require("./token/CVNftManagerV2");
 const CVStaking = artifacts.require("./staking/CVStaking");
 const MultiAcc = artifacts.require("./accounts/MultipleSignaturesAccount");
 
