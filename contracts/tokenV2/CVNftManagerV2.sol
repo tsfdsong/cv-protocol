@@ -690,4 +690,13 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
         _burn(tokenID);
         delete puzzles[tokenID];
     }
+
+    function migratePuzzle(Puzzle memory puzzle,address to, uint256 geneID) public onlyOwner returns (uint256,uint256) {
+        require(
+            blindOperators[msg.sender],
+            "CVNftManager: migratePuzzle must be blind operator"
+        );
+
+        return _migratePuzzle(puzzle,to, geneID);
+    }
 }

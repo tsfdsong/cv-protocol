@@ -110,4 +110,24 @@ contract CVNftV2 is CVNftBaseV2, ERC721("CV NFT", "CV") {
     function _updatePuzzle(uint256 _tokenID, Puzzle memory _puzzle) internal {
         puzzles[_tokenID] = _puzzle;
     }
+
+    function _migratePuzzle(Puzzle memory _puzzle, address _owner,uint256  geneID) internal returns (uint256,uint256) {
+        tokenIDs.increment();
+        uint256 tokenID = tokenIDs.current();
+        puzzles[tokenID] = _puzzle;
+
+        _mint(_owner, tokenID);
+
+        if (_puzzle.category == uint256(CVCategoryState.PICTURE)) {
+            uint256 _combinedSequence = roleCounts[_puzzle.roleNum][_puzzle.level];
+            roleCounts[_puzzle.roleNum][_puzzle.level] = _combinedSequence.add(1);
+        }else {
+            uint256 rolePieceCount = rolePieceNumCounts[_puzzle.roleNum][_puzzle.pieceNumber];
+            rolePieceNumCounts[_puzzle.roleNum][_puzzle.pieceNumber] = rolePieceCount.add(1);
+        }
+
+        genes[tokenID] = geneID;
+
+        return (tokenID, geneID);
+    }
 }
