@@ -123,10 +123,7 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
 
         if (isBusd) {
             totalAmount = totalAmount.mul(10**uint256(busd.decimals()));
-            require(
-                busd.allowance(msgsender, address(this)) >= totalAmount,
-                "CVNftManager: Required BUSD fee has not been approved"
-            );
+
 
             require(busd.transferFrom(msg.sender, incomeAddress, totalAmount));
         } else {
@@ -392,11 +389,6 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
         amount = amount.mul(10**uint256(cvcToken.decimals()));
 
         require(
-            cvcToken.allowance(_from, address(this)) >= amount,
-            "CVNftManager: Required CVC fee not allowance"
-        );
-
-        require(
             cvcToken.transferFrom(_from, msg.sender, amount),
             "CVNftManager: CVC token not sent"
         );
@@ -494,11 +486,6 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
             _remainincome = _price.sub(_platformIncome);
 
             require(
-                cvcToken.allowance(msgSender, address(this)) >= _price,
-                "CVNftManager: Required CVC fee not approve"
-            );
-
-            require(
                 cvcToken.transferFrom(
                     msgSender,
                     incomeAddress,
@@ -523,10 +510,6 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
             uint256 feeRate = cvCfg.getOrderFeeRate(true);
             _platformIncome = _price.mul(feeRate).div(100);
             _remainincome = _price.sub(_platformIncome);
-            require(
-                busd.allowance(msgSender, address(this)) >= _price,
-                "CVNftManager: Required BUSD fee not approve"
-            );
 
             require(
                 busd.transferFrom(msgSender, incomeAddress, _platformIncome),
@@ -642,20 +625,10 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
             previewBurn(oldPower, _upgradePuzzle.power, _isSame);
         if (isBusd) {
             require(
-                busd.allowance(msgSender, address(this)) >= price,
-                "CVNftManager: Required burn BUSD not approve"
-            );
-
-            require(
                 busd.transferFrom(msgSender, incomeAddress, price),
                 "CVNftManager: burn BUSD token not sent to income"
             );
         } else {
-            require(
-                cvcToken.allowance(msgSender, address(this)) >= price,
-                "CVNftManager: Required burn CVC not approve"
-            );
-
             require(
                 cvcToken.transferFrom(msgSender, incomeAddress, price),
                 "CVNftManager: burn CVC token not sent to income"
@@ -691,9 +664,9 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
         delete puzzles[tokenID];
     }
 
-    function migratePuzzle(Puzzle memory puzzle,address to, uint256 geneID) public onlyOwner returns (uint256,uint256) {
+    function migratePuzzle(Puzzle memory puzzle,address to, uint256 geneID) public returns (uint256,uint256) {
         require(
-            blindOperators[msg.sender],
+            blindOperators[msg.sender] || owner() == msg.sender,
             "CVNftManager: migratePuzzle must be blind operator"
         );
 
