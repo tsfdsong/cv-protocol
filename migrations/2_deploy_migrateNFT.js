@@ -17,12 +17,12 @@ module.exports = async (deployer, network) => {
 
   if (network == 'testnet') {
     oldnft = "0x4137Bd2dC8bCa33e2b7B203b6bddF0819BA7529D";
-    newnft = "0x08F89c9D145BA86423f68b2e34102aD87af79B3F";
+    newnft = "0xD6926D6E2e3D2aeAE4D30b715b68E07d1d3EA08c";
   }
 
   if (network == 'mainnet') {
     oldnft = "0x4137Bd2dC8bCa33e2b7B203b6bddF0819BA7529D";
-    newnft = "0x08F89c9D145BA86423f68b2e34102aD87af79B3F";
+    newnft = "0xD6926D6E2e3D2aeAE4D30b715b68E07d1d3EA08c";
   }
 
   mig.setOldNFTContract(oldnft,{ from: sender });

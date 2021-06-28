@@ -600,15 +600,15 @@ contract CVNftManagerV2 is CVNftV2, ICVNft, ReentrancyGuard, Pausable {
         uint256 powerPlus = _upgradePower.add(_burnPower).add(burnPlus);
         uint256 price = 0;
         if (isBusd) {
-            price = burnPlus.mul(busdPrice).mul(10**uint256(busd.decimals()));
+            price = burnPlus.mul(busdPrice).mul(10**uint256(busd.decimals())).div(100);
         } else {
-            price = burnPlus.mul(cvcPrice).mul(10**uint256(cvcToken.decimals()));
+            price = burnPlus.mul(cvcPrice).mul(10**uint256(cvcToken.decimals())).div(100);
         }
 
         return (isBusd, burnPlus, powerPlus, price);
     }
 
-    function burnPuzzle(
+    function burnPower(
         uint256 _burnID,
         uint256 _upgradeID,
         bool _isSame
